@@ -88,10 +88,28 @@ curl -fsSL https://raw.githubusercontent.com/Idealisten/Twitter_Video_Download/m
 docker compose up -d
 ```
 
+也可以使用自动端口部署脚本。脚本会从 `.env` 里的 `HOST_PORT` 开始检查；如果端口已被占用，会自动尝试下一个端口，并把最终端口写回 `.env`：
+
+```bash
+mkdir -p /opt/twitter-video-download
+cd /opt/twitter-video-download
+curl -fsSL https://raw.githubusercontent.com/Idealisten/Twitter_Video_Download/main/scripts/deploy.sh -o deploy.sh
+chmod +x deploy.sh
+./deploy.sh
+```
+
+指定从某个端口开始尝试：
+
+```bash
+HOST_PORT=8010 ./deploy.sh
+```
+
+如果端口是当前 `twitter-video-download` 容器自己占用的，脚本会继续沿用该端口；只有被其它进程或其它容器占用时才会递增。
+
 访问：
 
 ```text
-http://服务器IP:8001
+http://服务器IP:最终HOST_PORT
 ```
 
 代码更新后的服务器更新流程：
@@ -100,6 +118,13 @@ http://服务器IP:8001
 cd /opt/twitter-video-download
 docker compose pull
 docker compose up -d
+```
+
+如果希望更新时也自动避开已占用端口，继续使用部署脚本：
+
+```bash
+cd /opt/twitter-video-download
+./deploy.sh
 ```
 
 如果要看服务状态和日志：
