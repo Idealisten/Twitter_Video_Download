@@ -62,6 +62,143 @@ docker run -d -p 8000:8000 --name twitter-video-download twitter-video-download
 
 如果要在多台服务器复用部署，不建议每次 scp 源码。推荐把镜像发布到 GHCR 或 Docker Hub，然后服务器只执行 `docker compose pull && docker compose up -d`。详见 [DEPLOY.md](DEPLOY.md)。
 
+## 服务端部署和更新
+
+本仓库已经配置 GitHub Actions：代码推送到 `main` 分支后，会自动构建并发布 Docker 镜像到 GHCR。
+
+当前镜像地址：
+
+```text
+ghcr.io/idealisten/twitter-video-download:latest
+```
+
+触发自动构建的情况：
+
+- 推送代码到 `main`
+- 推送 `v*` tag，例如 `v1.0.0`
+- 在 GitHub Actions 页面手动运行 `Docker Publish`
+
+第一次部署服务器：
+
+```bash
+mkdir -p /opt/twitter-video-download
+cd /opt/twitter-video-download
+curl -fsSL https://raw.githubusercontent.com/Idealisten/Twitter_Video_Download/main/compose.yaml -o compose.yaml
+curl -fsSL https://raw.githubusercontent.com/Idealisten/Twitter_Video_Download/main/.env.example -o .env
+docker compose up -d
+```
+
+访问：
+
+```text
+http://服务器IP:8001
+```
+
+代码更新后的服务器更新流程：
+
+```bash
+cd /opt/twitter-video-download
+docker compose pull
+docker compose up -d
+```
+
+如果要看服务状态和日志：
+
+```bash
+docker compose ps
+docker compose logs -f twitter-video-download
+```
+
+如果要修改端口，编辑 `.env`：
+
+```text
+HOST_PORT=8001
+```
+
+然后执行：
+
+```bash
+docker compose up -d
+```
+
+## Cloudflare Tunnel 暴露公网
+
+推荐使用 Cloudflare 的 remotely-managed Tunnel：Tunnel 配置放在 Cloudflare Dashboard，服务器只保存一个 token。官方文档也推荐大多数场景使用 remotely-managed Tunnel。
+
+前提：
+
+- 域名已经托管到 Cloudflare
+- 服务器已经按上一节启动了服务
+- 本地服务在服务器内可通过 `http://twitter-video-download:8000` 访问
+
+### 1. 在 Cloudflare 创建 Tunnel
+
+1. 打开 Cloudflare Dashboard。
+2. 进入 `Zero Trust`。
+3. 进入 `Networks` -> `Tunnels`。
+4. 创建一个 `Cloudflared` tunnel，例如命名为 `twitter-video-download`。
+5. 添加 Public Hostname：
+   - Subdomain：例如 `xvideo`
+   - Domain：选择你的域名，例如 `example.com`
+   - Type：`HTTP`
+   - URL：`twitter-video-download:8000`
+6. 保存后，在 `Docker` 安装方式里复制 token。token 通常是一长串 `eyJ...`。
+
+最终公网地址类似：
+
+```text
+https://xvideo.example.com
+```
+
+### 2. 在服务器运行 cloudflared
+
+在服务器目录里拉取 Cloudflare Compose 文件：
+
+```bash
+cd /opt/twitter-video-download
+curl -fsSL https://raw.githubusercontent.com/Idealisten/Twitter_Video_Download/main/compose.cloudflare.yaml -o compose.cloudflare.yaml
+```
+
+编辑 `.env`，填入刚复制的 token：
+
+```text
+CLOUDFLARE_TUNNEL_TOKEN=eyJ...
+```
+
+启动网站和 Tunnel：
+
+```bash
+docker compose -f compose.yaml -f compose.cloudflare.yaml up -d
+```
+
+查看 Tunnel 日志：
+
+```bash
+docker compose -f compose.yaml -f compose.cloudflare.yaml logs -f cloudflared
+```
+
+以后更新网站镜像，同时保留 Tunnel：
+
+```bash
+cd /opt/twitter-video-download
+docker compose -f compose.yaml -f compose.cloudflare.yaml pull
+docker compose -f compose.yaml -f compose.cloudflare.yaml up -d
+```
+
+如果只想重启 Tunnel：
+
+```bash
+docker compose -f compose.yaml -f compose.cloudflare.yaml restart cloudflared
+```
+
+iPhone 快捷指令里的接口地址改成公网域名：
+
+```text
+https://xvideo.example.com/api/shortcut?url=编码后的URL
+```
+
+注意：`CLOUDFLARE_TUNNEL_TOKEN` 等同于连接这个 Tunnel 的凭证，不要提交到 GitHub。如果泄露，到 Cloudflare Dashboard 里 rotate token，然后更新服务器 `.env` 并重启 `cloudflared`。
+
 ## API
 
 解析：
