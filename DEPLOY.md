@@ -9,7 +9,7 @@
 3. GitHub Actions 会自动构建多架构镜像并推送到：
 
    ```text
-   ghcr.io/你的GitHub用户名/twitter-video-download:latest
+   ghcr.io/idealisten/twitter-video-download:latest
    ```
 
 如果 GHCR 包默认是私有的，到 GitHub 仓库页面进入 `Packages`，把这个 package 改成 Public，服务器才能免登录拉取。
@@ -30,7 +30,7 @@ cd /opt/twitter-video-download
 ```yaml
 services:
   twitter-video-download:
-    image: ghcr.io/你的GitHub用户名/twitter-video-download:latest
+    image: ghcr.io/idealisten/twitter-video-download:latest
     container_name: twitter-video-download
     restart: unless-stopped
     ports:
@@ -80,9 +80,8 @@ docker compose up -d
 
 ```bash
 mkdir -p /opt/twitter-video-download && cd /opt/twitter-video-download
-curl -fsSL https://raw.githubusercontent.com/你的GitHub用户名/twitter-video-download/main/compose.yaml -o compose.yaml
-curl -fsSL https://raw.githubusercontent.com/你的GitHub用户名/twitter-video-download/main/.env.example -o .env
-sed -i 's#ghcr.io/YOUR_GITHUB_USER/twitter-video-download:latest#ghcr.io/你的GitHub用户名/twitter-video-download:latest#' .env
+curl -fsSL https://raw.githubusercontent.com/Idealisten/Twitter_Video_Download/main/compose.yaml -o compose.yaml
+curl -fsSL https://raw.githubusercontent.com/Idealisten/Twitter_Video_Download/main/.env.example -o .env
 docker compose up -d
 ```
 

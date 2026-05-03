@@ -1,6 +1,6 @@
 services:
   twitter-video-download:
-    image: ${IMAGE:-twitter-video-download:latest}
+    image: ${IMAGE:-ghcr.io/idealisten/twitter-video-download:latest}
     container_name: twitter-video-download
     restart: unless-stopped
     ports:
