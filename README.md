@@ -199,6 +199,128 @@ https://xvideo.example.com/api/shortcut?url=编码后的URL
 
 注意：`CLOUDFLARE_TUNNEL_TOKEN` 等同于连接这个 Tunnel 的凭证，不要提交到 GitHub。如果泄露，到 Cloudflare Dashboard 里 rotate token，然后更新服务器 `.env` 并重启 `cloudflared`。
 
+### 已有 Tunnel 时新增这个服务
+
+如果服务器上已经有一个 Cloudflare Tunnel，不一定要新建 Tunnel。一个 Tunnel 可以发布多个 hostname，每个 hostname 指向不同的本地服务。
+
+先在服务器启动本服务：
+
+```bash
+mkdir -p /opt/twitter-video-download
+cd /opt/twitter-video-download
+curl -fsSL https://raw.githubusercontent.com/Idealisten/Twitter_Video_Download/main/compose.yaml -o compose.yaml
+curl -fsSL https://raw.githubusercontent.com/Idealisten/Twitter_Video_Download/main/.env.example -o .env
+docker compose up -d
+```
+
+此时服务端口是：
+
+```text
+宿主机访问：http://127.0.0.1:8001
+Docker Compose 内部访问：http://twitter-video-download:8000
+```
+
+#### 情况 A：已有 Tunnel 是 Dashboard / token 管理
+
+这种是目前更推荐的方式，服务器通常只保存 `CLOUDFLARE_TUNNEL_TOKEN`，本地没有需要手写的 `config.yml`。
+
+操作：
+
+1. 打开 Cloudflare Dashboard。
+2. 进入 `Zero Trust` -> `Networks` -> `Tunnels`。
+3. 选择已有 Tunnel。
+4. 进入 `Public Hostnames`。
+5. 添加一个 hostname，例如：
+   - Subdomain：`xvideo`
+   - Domain：`example.com`
+   - Type：`HTTP`
+   - URL：如果 cloudflared 和本服务在同一个 `docker compose` 项目里，填 `twitter-video-download:8000`
+   - URL：如果 cloudflared 是宿主机 systemd 服务或另一个独立容器，填 `127.0.0.1:8001`
+6. 保存。
+
+保存后 Cloudflare 会自动创建对应 DNS 记录。公网地址类似：
+
+```text
+https://xvideo.example.com
+```
+
+如果你的 cloudflared 已经是独立 systemd 服务，一般不需要重启；Cloudflare 会把新的 Public Hostname 配置下发给正在运行的 connector。若几分钟后仍不生效，可以重启：
+
+```bash
+sudo systemctl restart cloudflared
+```
+
+#### 情况 B：已有 Tunnel 是本地 config.yml 管理
+
+这种方式需要修改 cloudflared 的配置文件。常见路径：
+
+```text
+/etc/cloudflared/config.yml
+~/.cloudflared/config.yml
+```
+
+用下面命令先找配置文件：
+
+```bash
+sudo ls -la /etc/cloudflared
+ls -la ~/.cloudflared
+```
+
+编辑 `config.yml`，在 `ingress` 里新增一个 hostname。示例：
+
+```yaml
+tunnel: 你的TunnelID或TunnelName
+credentials-file: /root/.cloudflared/你的TunnelID.json
+
+ingress:
+  - hostname: old.example.com
+    service: http://127.0.0.1:8000
+
+  - hostname: xvideo.example.com
+    service: http://127.0.0.1:8001
+
+  - service: http_status:404
+```
+
+说明：
+
+- `xvideo.example.com` 换成你的域名。
+- 如果 cloudflared 是宿主机服务，`service` 用 `http://127.0.0.1:8001`。
+- 如果 cloudflared 和本服务在同一个 Docker Compose 网络里，`service` 可以用 `http://twitter-video-download:8000`。
+- 最后一条 `- service: http_status:404` 要保留，作为未匹配 hostname 的兜底。
+
+为新 hostname 创建 DNS route：
+
+```bash
+cloudflared tunnel route dns 你的TunnelID或TunnelName xvideo.example.com
+```
+
+重启 cloudflared：
+
+```bash
+sudo systemctl restart cloudflared
+```
+
+检查日志：
+
+```bash
+sudo journalctl -u cloudflared -f
+```
+
+公网验证：
+
+```bash
+curl -I https://xvideo.example.com/health
+```
+
+返回 `200` 即表示 Tunnel 和服务都通了。
+
+快捷指令地址改成：
+
+```text
+https://xvideo.example.com/api/shortcut?url=编码后的URL
+```
+
 ## API
 
 解析：
