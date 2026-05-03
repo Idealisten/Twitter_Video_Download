@@ -1,0 +1,16 @@
+services:
+  twitter-video-download:
+    image: ${IMAGE:-twitter-video-download:latest}
+    container_name: twitter-video-download
+    restart: unless-stopped
+    ports:
+      - "${HOST_PORT:-8001}:8000"
+    environment:
+      RESULT_TTL_SECONDS: ${RESULT_TTL_SECONDS:-1800}
+      MAX_DOWNLOAD_BYTES: ${MAX_DOWNLOAD_BYTES:-1073741824}
+      REQUEST_TIMEOUT: ${REQUEST_TIMEOUT:-20}
+    volumes:
+      - twitter-video-download-cache:/tmp/twitter-video-download
+
+volumes:
+  twitter-video-download-cache:

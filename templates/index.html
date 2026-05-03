@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Twitter/X 视频下载</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel">
+        <div class="heading">
+          <h1>Twitter/X 视频下载</h1>
+        </div>
+
+        <form id="parse-form" class="form">
+          <label for="tweet-url">Twitter/X 视频链接</label>
+          <div class="input-row">
+            <input
+              id="tweet-url"
+              name="url"
+              type="url"
+              inputmode="url"
+              autocomplete="url"
+              placeholder="https://x.com/user/status/1234567890"
+              value="{{ initial_url }}"
+              required
+            />
+            <button type="submit">解析</button>
+          </div>
+        </form>
+
+        <div id="status" class="status" role="status"></div>
+
+        <section id="results" class="results" hidden>
+          <div class="result-head">
+            <div>
+              <p class="label">解析成功</p>
+              <h2 id="video-title"></h2>
+            </div>
+            <span id="source-badge" class="badge"></span>
+          </div>
+          <div id="choice-list" class="choice-list"></div>
+        </section>
+
+        <section id="attempts" class="attempts" hidden>
+          <button id="toggle-attempts" type="button" class="ghost">查看解析源状态</button>
+          <div id="attempt-list" class="attempt-list" hidden></div>
+        </section>
+      </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>

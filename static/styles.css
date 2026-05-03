@@ -1,0 +1,296 @@
+:root {
+  color-scheme: light;
+  --bg: #f4f7fb;
+  --panel: #ffffff;
+  --text: #18202f;
+  --muted: #607089;
+  --line: #dce4ef;
+  --accent: #1266f1;
+  --accent-dark: #0d4ec0;
+  --success: #147b45;
+  --danger: #b72f34;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 14% 12%, rgba(18, 102, 241, 0.14), transparent 30%),
+    linear-gradient(135deg, #f7fbff 0%, #edf2f8 100%);
+}
+
+.shell {
+  width: min(980px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 56px 0;
+}
+
+.panel {
+  border: 1px solid rgba(220, 228, 239, 0.9);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 24px 70px rgba(33, 45, 71, 0.12);
+  padding: clamp(24px, 5vw, 48px);
+}
+
+.heading {
+  max-width: 720px;
+}
+
+.label {
+  margin: 0 0 8px;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+h1 {
+  max-width: 760px;
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1.02;
+  letter-spacing: 0;
+}
+
+.form {
+  margin-top: 36px;
+}
+
+label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+
+input {
+  min-width: 0;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  color: var(--text);
+  font: inherit;
+  background: #fbfdff;
+}
+
+input:focus {
+  border-color: var(--accent);
+  outline: 3px solid rgba(18, 102, 241, 0.16);
+}
+
+button,
+.download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 22px;
+  color: #fff;
+  background: var(--accent);
+  font: inherit;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+button:hover,
+.download:hover {
+  background: var(--accent-dark);
+}
+
+.status {
+  min-height: 28px;
+  margin-top: 18px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.status.success {
+  color: var(--success);
+}
+
+.status.error {
+  color: var(--danger);
+}
+
+.status.loading {
+  color: var(--accent-dark);
+}
+
+.results {
+  margin-top: 28px;
+  border-top: 1px solid var(--line);
+  padding-top: 24px;
+}
+
+.result-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+h2 {
+  margin: 0;
+  font-size: clamp(1.25rem, 3vw, 1.8rem);
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+.badge {
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 12px;
+  color: var(--muted);
+  background: #f7f9fc;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.choice-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: #fbfdff;
+}
+
+.choice-meta {
+  min-width: 0;
+}
+
+.choice-meta strong,
+.choice-meta span {
+  display: block;
+}
+
+.choice-meta strong {
+  font-size: 1.08rem;
+}
+
+.choice-meta span {
+  margin-top: 4px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.download {
+  min-height: 44px;
+  padding: 0 18px;
+}
+
+.attempts {
+  margin-top: 22px;
+}
+
+.ghost {
+  min-height: 42px;
+  border: 1px solid var(--line);
+  color: var(--text);
+  background: #fff;
+}
+
+.ghost:hover {
+  color: #fff;
+  background: var(--text);
+}
+
+.attempt-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.attempt {
+  display: grid;
+  grid-template-columns: minmax(120px, 180px) 1fr auto;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--muted);
+  background: #fbfdff;
+  font-size: 0.92rem;
+}
+
+.attempt span {
+  color: var(--text);
+  font-weight: 800;
+}
+
+.attempt strong {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.attempt.ok strong {
+  color: var(--success);
+}
+
+.attempt.fail strong {
+  color: var(--danger);
+}
+
+.attempt em {
+  font-style: normal;
+}
+
+@media (max-width: 680px) {
+  .shell {
+    width: min(100% - 20px, 980px);
+    padding: 18px 0;
+  }
+
+  .panel {
+    padding: 22px;
+  }
+
+  .input-row,
+  .choice,
+  .result-head,
+  .attempt {
+    grid-template-columns: 1fr;
+  }
+
+  .input-row,
+  .choice,
+  .result-head {
+    display: grid;
+  }
+
+  button,
+  .download {
+    width: 100%;
+  }
+
+  .badge {
+    justify-self: start;
+  }
+}
