@@ -106,11 +106,13 @@ HOST_PORT=8010 ./deploy.sh
 
 如果端口是当前 `twitter-video-download` 容器自己占用的，脚本会继续沿用该端口；只有被其它进程或其它容器占用时才会递增。
 
-访问：
+服务器部署完成后，正式访问建议使用 Cloudflare Tunnel 绑定的 HTTPS 域名，而不是服务器 IP：
 
 ```text
-http://服务器IP:最终HOST_PORT
+https://xvideo.example.com
 ```
+
+`http://服务器IP:最终HOST_PORT` 只建议用于服务器防火墙内或临时排查。
 
 代码更新后的服务器更新流程：
 
@@ -348,10 +350,12 @@ https://xvideo.example.com/api/shortcut?url=编码后的URL
 
 ## API
 
+下面示例里的 `https://xvideo.example.com` 换成你的 Cloudflare Tunnel 域名。
+
 解析：
 
 ```bash
-curl -X POST http://127.0.0.1:8000/api/parse \
+curl -X POST https://xvideo.example.com/api/parse \
   -H "Content-Type: application/json" \
   -d '{"url":"https://x.com/user/status/1234567890"}'
 ```
@@ -359,7 +363,7 @@ curl -X POST http://127.0.0.1:8000/api/parse \
 快捷指令友好的解析接口：
 
 ```text
-http://127.0.0.1:8000/api/shortcut?url=URL编码后的推文链接
+https://xvideo.example.com/api/shortcut?url=URL编码后的推文链接
 ```
 
 响应中的 `items` 每项包含：
@@ -385,7 +389,7 @@ http://127.0.0.1:8000/api/shortcut?url=URL编码后的推文链接
 5. 添加动作「文本」，内容填：
 
    ```text
-   http://你的服务器IP:8000/?url=上一步URL编码结果
+   https://xvideo.example.com/?url=上一步URL编码结果
    ```
 
 6. 添加动作「打开 URL」，URL 选择上一步文本。
@@ -399,7 +403,7 @@ http://127.0.0.1:8000/api/shortcut?url=URL编码后的推文链接
 4. 添加「文本」，内容为：
 
    ```text
-   http://你的服务器IP:8000/api/shortcut?url=上一步URL编码结果
+   https://xvideo.example.com/api/shortcut?url=上一步URL编码结果
    ```
 
 5. 添加「获取 URL 内容」，URL 使用上一步文本，方法为 `GET`。
@@ -411,7 +415,7 @@ http://127.0.0.1:8000/api/shortcut?url=URL编码后的推文链接
 11. 添加「获取 URL 内容」，URL 使用第 10 步得到的下载地址，方法为 `GET`。
 12. 添加「存储到照片相簿」，输入为第 11 步获取到的 URL 内容。
 
-注意：如果服务跑在家里电脑上，iPhone 必须和电脑在同一个 Wi-Fi；如果要在外网用，建议放到有 HTTPS 的服务器或通过 Cloudflare Tunnel / Tailscale 之类的私有访问方式暴露，不建议裸奔公开服务。
+注意：iPhone 快捷指令推荐始终使用 Cloudflare Tunnel 提供的 HTTPS 域名。局域网 IP 只适合临时调试，不建议写进正式快捷指令。
 
 ## 环境变量
 
