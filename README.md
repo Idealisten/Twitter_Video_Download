@@ -78,6 +78,25 @@ ghcr.io/idealisten/twitter-video-download:latest
 - 推送 `v*` tag，例如 `v1.0.0`
 - 在 GitHub Actions 页面手动运行 `Docker Publish`
 
+### 本地更新后发布到 GitHub
+
+本地改完代码后，使用发布脚本提交并推送：
+
+```bash
+./scripts/publish.sh "说明这次更新做了什么"
+```
+
+脚本会自动执行：
+
+1. Python 语法检查
+2. 部署脚本语法检查
+3. Docker Compose 配置检查
+4. `git add -A`
+5. `git commit`
+6. `git push`
+
+推送到 `main` 后，GitHub Actions 会自动构建并发布新的 Docker 镜像。发布脚本最后会打印 GitHub Actions 地址，等待 `Docker Publish` 成功后，服务器再执行更新命令。
+
 第一次部署服务器：
 
 ```bash
@@ -118,16 +137,17 @@ https://xvideo.example.com
 
 ```bash
 cd /opt/twitter-video-download
+./deploy.sh
+```
+
+`./deploy.sh` 会执行 `docker compose pull` 和 `docker compose up -d`，并在端口被其它进程占用时自动递增。也可以手动执行：
+
+```bash
 docker compose pull
 docker compose up -d
 ```
 
-如果希望更新时也自动避开已占用端口，继续使用部署脚本：
-
-```bash
-cd /opt/twitter-video-download
-./deploy.sh
-```
+例如这次网站 favicon 更新后，服务器只要执行 `./deploy.sh` 拉取最新镜像，图标就会一起更新。
 
 如果要看服务状态和日志：
 
