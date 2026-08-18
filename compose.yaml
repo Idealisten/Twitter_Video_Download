@@ -4,7 +4,7 @@ services:
     container_name: twitter-video-download
     restart: unless-stopped
     ports:
-      - "${HOST_PORT:-8001}:8000"
+      - "127.0.0.1:${HOST_PORT:-8001}:8000"
     environment:
       RESULT_TTL_SECONDS: ${RESULT_TTL_SECONDS:-1800}
       MAX_DOWNLOAD_BYTES: ${MAX_DOWNLOAD_BYTES:-1073741824}

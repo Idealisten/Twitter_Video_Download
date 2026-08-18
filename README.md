@@ -49,16 +49,16 @@ docker build -t twitter-video-download .
 运行容器：
 
 ```bash
-docker run --rm -p 8000:8000 --name twitter-video-download twitter-video-download
+docker run --rm -p 127.0.0.1:8000:8000 --name twitter-video-download twitter-video-download
 ```
 
 后台运行：
 
 ```bash
-docker run -d -p 8000:8000 --name twitter-video-download twitter-video-download
+docker run -d -p 127.0.0.1:8000:8000 --name twitter-video-download twitter-video-download
 ```
 
-如果宿主机的 `8000` 被占用，可以用 `docker run --rm -p 8001:8000 --name twitter-video-download twitter-video-download`，然后访问 `http://127.0.0.1:8001`。
+如果宿主机的 `8000` 被占用，可以用 `docker run --rm -p 127.0.0.1:8001:8000 --name twitter-video-download twitter-video-download`，然后访问 `http://127.0.0.1:8001`。服务器通过 Cloudflare Tunnel 暴露时，源站端口应只监听 `127.0.0.1`，不要直接暴露给公网扫描。
 
 如果要在多台服务器复用部署，不建议每次 scp 源码。推荐把镜像发布到 GHCR 或 Docker Hub，然后服务器只执行 `docker compose pull && docker compose up -d`。详见 [DEPLOY.md](DEPLOY.md)。
 
@@ -133,6 +133,8 @@ https://xvideo.example.com
 
 `http://服务器IP:最终HOST_PORT` 只建议用于服务器防火墙内或临时排查。
 
+`compose.yaml` 默认把服务绑定到 `127.0.0.1`，因此只有服务器本机的 `cloudflared` 可以访问源站端口。使用 systemd 运行的 Tunnel 时，Public Hostname 的 Service URL 填 `http://127.0.0.1:最终HOST_PORT`；使用同一 Compose 网络运行的 Tunnel 时，填 `http://twitter-video-download:8000`。
+
 代码更新后的服务器更新流程：
 
 ```bash
@@ -176,7 +178,7 @@ docker compose up -d
 
 - 域名已经托管到 Cloudflare
 - 服务器已经按上一节启动了服务
-- 本地服务在服务器内可通过 `http://twitter-video-download:8000` 访问
+- systemd 版 cloudflared 通过 `http://127.0.0.1:最终HOST_PORT` 访问本服务；同一 Compose 网络中的 cloudflared 通过 `http://twitter-video-download:8000` 访问本服务
 
 ### 1. 在 Cloudflare 创建 Tunnel
 

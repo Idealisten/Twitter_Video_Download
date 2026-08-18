@@ -34,7 +34,7 @@ services:
     container_name: twitter-video-download
     restart: unless-stopped
     ports:
-      - "8001:8000"
+      - "127.0.0.1:8001:8000"
     environment:
       RESULT_TTL_SECONDS: 1800
       MAX_DOWNLOAD_BYTES: 1073741824
@@ -55,14 +55,16 @@ docker compose up -d
 访问：
 
 ```text
-http://服务器IP:8001
+http://127.0.0.1:8001
 ```
 
-快捷指令接口地址：
+服务器通过 Cloudflare Tunnel 暴露后，快捷指令接口地址应使用你的 HTTPS 域名：
 
 ```text
-http://服务器IP:8001/api/shortcut?url=编码后的URL
+https://xvideo.example.com/api/shortcut?url=编码后的URL
 ```
+
+源站端口只绑定到 `127.0.0.1`，避免被公网扫描占满 Gunicorn 工作线程。systemd 版 cloudflared 的 Service URL 填 `http://127.0.0.1:8001`；如果 cloudflared 和本服务在同一个 Compose 网络中，则填 `http://twitter-video-download:8000`。
 
 ## 更新服务
 
